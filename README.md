@@ -30,9 +30,73 @@ IBM Bob のライフサイクルフックで、ツール実行とターン完了
 
 ## 使い方
 
-1. Node.js をインストールする
-2. リポジトリルートをBobのワークスペースとして開く(`node .bob/hooks/log-tools.mjs` は相対パス実行のため)
-3. Bobを通常通り使うと `.bob/logs/` にログが生成される
+1. このリポジトリをダウンロードする(`git clone git@github.com:ikegami-ririko/bob-audit-hooks.git` または GitHub の **Code → Download ZIP**)
+2. ダウンロードした中の `.bob/` フォルダを、フックを有効にしたいプロジェクトのディレクトリ直下にコピーする
+   ```bash
+   cp -r bob-audit-hooks/.bob /path/to/your-project/
+   ```
+   - 対象プロジェクトに既に `.bob/settings.json` がある場合は上書きされるため、`hooks` の項目だけをマージする
+3. Node.js をインストールする
+4. コピー先のプロジェクトをBobのワークスペースとして開く(`node .bob/hooks/log-tools.mjs` は相対パス実行のため)
+5. Bobを通常通り使うと `.bob/logs/` にログが生成される
+
+## 出力イメージ
+
+出力先は `.bob/logs/` です。セッションごとにファイルが分かれます。
+
+```
+.bob/logs/
+├── tool_audit_<session_id>.log
+└── tool_audit_<session_id>.jsonl
+```
+
+### `.log` (タイムライン形式)
+
+ツールの種類ごとにアイコンと見出しが付き、1件ずつ区切り線で区切られます。
+
+```
+================================================================================
+[2026-01-01 09:00:04 JST] 🔍 【ファイル探索】 glob
+  ツール   : glob
+  対象     : **/pom.xml
+--- [実行結果] ---
+src/app/pom.xml
+src/lib/pom.xml
+--------------------------------------------------------------------------------
+
+================================================================================
+[2026-01-01 09:00:10 JST] 💻 【コマンド実行】 execute_command
+  コマンド : mvn -q test
+--- [実行結果] ---
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+--------------------------------------------------------------------------------
+
+================================================================================
+[2026-01-01 09:00:30 JST] 🏁 【ターン完了 (Stop)】 Session: <session_id>
+--- [AI応答サマリー] ---
+テストが全件成功しました。
+--------------------------------------------------------------------------------
+```
+
+ツールの種類と見出しの対応は次のとおりです。
+
+| ツール | 見出し |
+|---|---|
+| `start_subtask` | 🚀 【サブタスク起動】 |
+| `spawn_subagent` | 🤖 【サブエージェント】 |
+| `execute_command` | 💻 【コマンド実行】 |
+| `write_file` / `apply_diff` / `search_and_replace` / `insert_content` | 📝 【ファイル編集】 |
+| `read_file` / `glob` / `grep` / `list_files` | 🔍 【ファイル探索】 |
+| `mcp__*` | 🔌 【MCPツール】 |
+| 上記以外 | 🔧 【ツール名】 |
+
+### `.jsonl` (解析用)
+
+1行が1イベントです。
+
+```json
+{"timestamp":"2026-01-01T09:00:04.767+09:00","session_id":"<session_id>","cwd":"/path/to/your-project","event":"PostToolUse","tool_name":"glob","tool_input":{"pattern":"**/pom.xml"},"tool_response":"src/app/pom.xml\nsrc/lib/pom.xml","last_assistant_message":null}
+```
 
 ## 注意
 
