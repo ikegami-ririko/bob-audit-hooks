@@ -31,7 +31,18 @@ try {
   const rawResponse = payload.tool_response ?? "";
   const response = typeof rawResponse === "string" ? rawResponse : JSON.stringify(rawResponse, null, 2);
 
-  if (payload.hook_event_name === "Stop") {
+  if (payload.hook_event_name === "SessionStart") {
+    formattedLog += `\n================================================================================\n`;
+    formattedLog += `[${dateStr} JST] 🟢 【セッション開始 (SessionStart)】 Session: ${payload.session_id}\n`;
+    formattedLog += `  開始種別 : ${payload.source || "unknown"}\n`;
+    formattedLog += `  cwd      : ${cwd}\n`;
+    formattedLog += `--------------------------------------------------------------------------------\n`;
+  } else if (payload.hook_event_name === "UserPromptSubmit") {
+    formattedLog += `\n================================================================================\n`;
+    formattedLog += `[${dateStr} JST] 💬 【ユーザープロンプト (UserPromptSubmit)】 Session: ${payload.session_id}\n`;
+    formattedLog += `${String(payload.prompt ?? "").trim()}\n`;
+    formattedLog += `--------------------------------------------------------------------------------\n`;
+  } else if (payload.hook_event_name === "Stop") {
     formattedLog += `\n================================================================================\n`;
     formattedLog += `[${dateStr} JST] 🏁 【ターン完了 (Stop)】 Session: ${payload.session_id}\n`;
     if (payload.last_assistant_message) {
@@ -94,6 +105,7 @@ try {
     tool_name: payload.tool_name ?? null,
     tool_input: payload.tool_input ?? null,
     tool_response: payload.tool_response ?? null,
+    prompt: payload.prompt ?? null,
     last_assistant_message: payload.last_assistant_message ?? null,
   };
   const jsonlLogFile = path.join(logDir, `tool_audit_${sessionId}.jsonl`);
