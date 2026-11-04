@@ -37,14 +37,23 @@ IBM Bob のライフサイクルフックで、ツール実行とターン完了
    - git: `git clone git@github.com:ikegami-ririko/bob-audit-hooks.git`。フォルダ名は `bob-audit-hooks` になる
 2. ダウンロードした中の `.bob/` フォルダを、フックを有効にしたいプロジェクトのディレクトリ直下にコピーする
    ```bash
-   # ZIPで取得した場合
+   # macOS / Linux: ZIPで取得した場合
    cp -r bob-audit-hooks-main/.bob /path/to/your-project/
 
-   # git cloneした場合
+   # macOS / Linux: git cloneした場合
    cp -r bob-audit-hooks/.bob /path/to/your-project/
    ```
+   ```bat
+   :: Windows (cmd): ZIPで取得した場合
+   xcopy /E /I /Y bob-audit-hooks-main\.bob C:\path\to\your-project\.bob
+
+   :: Windows (cmd): git cloneした場合
+   xcopy /E /I /Y bob-audit-hooks\.bob C:\path\to\your-project\.bob
+   ```
+   - Windows ではエクスプローラーで `.bob` フォルダをプロジェクト直下にコピーしてもよい
    - 対象プロジェクトに既に `.bob/settings.json` がある場合は上書きされるため、`hooks` の項目だけをマージする
 3. Node.js をインストールする
+   - Windows では `cmd` から `node -v` が通ること(PATH に `node` があること)を確認する
 4. コピー先のプロジェクトをBobのワークスペースとして開く(`node .bob/hooks/log-tools.mjs` は相対パス実行のため)
 5. Bobを通常通り使うと `.bob/logs/` にログが生成される
 
@@ -124,3 +133,5 @@ Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
 - ログにはユーザーのプロンプトやツールの実行結果(ファイル内容やコマンド出力)がそのまま入るため、コミットしないこと。`.bob/.gitignore` で除外済み
 - `mcp.json` はローカルのポート・トークンを含むためコミットしない
 - フックのタイムアウトは10秒。失敗してもBobの動作は止まらない(スクリプトは常に `exit 0`)
+- フックのコマンドは macOS / Linux では `sh -c`、Windows では `cmd /c` で実行される。`settings.json` の `node .bob/hooks/log-tools.mjs` はどちらでもそのまま動く
+- ログはUTF-8で出力される。Windowsでは UTF-8 対応のエディタ(VS Code など)で開くこと。古いメモ帳などでは文字化けすることがある
