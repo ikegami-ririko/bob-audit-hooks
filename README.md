@@ -22,6 +22,7 @@ IBM Bob のライフサイクルフックで、ツール実行とターン完了
 |---|---|---|
 | `SessionStart` | セッション開始・再開時 | `.bob/logs/` と当セッションのログファイルを作成し、開始を記録 |
 | `UserPromptSubmit` | プロンプト送信時 | ユーザーが入力したプロンプトを記録 |
+| `PreToolUse` | 全ツール (`.*`) | ツール実行前の呼び出し・入力を記録 |
 | `PostToolUse` | 全ツール (`.*`) | ツール名・入力・実行結果を記録 |
 | `Stop` | ターン完了時 | AI応答サマリーを記録 |
 
@@ -35,23 +36,29 @@ IBM Bob のライフサイクルフックで、ツール実行とターン完了
 1. このリポジトリをダウンロードする
    - ZIP: GitHub の **Code → Download ZIP** で取得して展開する。フォルダ名は `bob-audit-hooks-main` になる
    - git: `git clone git@github.com:ikegami-ririko/bob-audit-hooks.git`。フォルダ名は `bob-audit-hooks` になる
-2. ダウンロードした中の `.bob/` フォルダを、フックを有効にしたいプロジェクトのディレクトリ直下にコピーする
-   ```bash
-   # macOS / Linux: ZIPで取得した場合
-   cp -r bob-audit-hooks-main/.bob /path/to/your-project/
+2. ダウンロードした中の `.bob/` の内容を、フックを有効にしたいプロジェクトの `.bob/` に配置する
+   - **プロジェクト内にまだ `.bob/` がない場合**：そのままフォルダーごとコピーします。
+   - **すでにプロジェクト内に `.bob/` が存在する場合（通常はこちら）**：
+     - `hooks/` フォルダーおよび `logs/` フォルダーをプロジェクトの `.bob/` 配下にコピーします。
+     - 既存の `.bob/settings.json` がある場合は、`settings.json` の `hooks` 設定部分をマージ（追記）してください（上書きすると既存のモードや他の設定が消えてしまいます）。
 
-   # macOS / Linux: git cloneした場合
-   cp -r bob-audit-hooks/.bob /path/to/your-project/
+   **フォルダー/ファイルコピーの例：**
+   ```bash
+   # macOS / Linux: ZIPで取得した場合 (.bob/ 内へ内容をマージコピー)
+   cp -R bob-audit-hooks-main/.bob/ /path/to/your-project/.bob/
+
+   # macOS / Linux: git cloneした場合 (.bob/ 内へ内容をマージコピー)
+   cp -R bob-audit-hooks/.bob/ /path/to/your-project/.bob/
    ```
    ```bat
-   :: Windows (cmd): ZIPで取得した場合
+   :: Windows (cmd): ZIPで取得した場合 (.bob 配下にマージ)
    xcopy /E /I /Y bob-audit-hooks-main\.bob C:\path\to\your-project\.bob
 
-   :: Windows (cmd): git cloneした場合
+   :: Windows (cmd): git cloneした場合 (.bob 配下にマージ)
    xcopy /E /I /Y bob-audit-hooks\.bob C:\path\to\your-project\.bob
    ```
-   - Windows ではエクスプローラーで `.bob` フォルダをプロジェクト直下にコピーしてもよい
-   - 対象プロジェクトに既に `.bob/settings.json` がある場合は上書きされるため、`hooks` の項目だけをマージする
+   - Windows ではエクスプローラーで `hooks` や `logs` フォルダを既存の `.bob` フォルダへドラッグ＆ドロップして配置しても構いません。
+   - すでに `.bob/settings.json` がある場合は、ファイルの丸ごと上書きを避け、後述の通り `hooks` のJSONブロックのみをエディタで追記・マージしてください。
 3. Node.js をインストールする
    - Windows では `cmd` から `node -v` が通ること(PATH に `node` があること)を確認する
 4. コピー先のプロジェクトをBobのワークスペースとして開く(`node .bob/hooks/log-tools.mjs` は相対パス実行のため)
