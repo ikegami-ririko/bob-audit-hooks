@@ -1,0 +1,5 @@
+# .bob/ と README.md 以外はgit管理しない
+/*
+!/.bob/
+!/README.md
+!/.gitignore
