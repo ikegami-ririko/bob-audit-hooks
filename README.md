@@ -32,9 +32,15 @@ IBM Bob のライフサイクルフックで、ツール実行とターン完了
 
 ## 使い方
 
-1. このリポジトリをダウンロードする(`git clone git@github.com:ikegami-ririko/bob-audit-hooks.git` または GitHub の **Code → Download ZIP**)
+1. このリポジトリをダウンロードする
+   - ZIP: GitHub の **Code → Download ZIP** で取得して展開する。フォルダ名は `bob-audit-hooks-main` になる
+   - git: `git clone git@github.com:ikegami-ririko/bob-audit-hooks.git`。フォルダ名は `bob-audit-hooks` になる
 2. ダウンロードした中の `.bob/` フォルダを、フックを有効にしたいプロジェクトのディレクトリ直下にコピーする
    ```bash
+   # ZIPで取得した場合
+   cp -r bob-audit-hooks-main/.bob /path/to/your-project/
+
+   # git cloneした場合
    cp -r bob-audit-hooks/.bob /path/to/your-project/
    ```
    - 対象プロジェクトに既に `.bob/settings.json` がある場合は上書きされるため、`hooks` の項目だけをマージする
